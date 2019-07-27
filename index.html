@@ -1,0 +1,228 @@
+<html>
+	<head>
+		<style>
+			#userInput {
+				display: none;
+			}
+			
+			#list {
+				display: block;;
+			}
+		</style>
+	</head>
+	<script>
+		var userInput, list, title, description, select, userInputTitle, edit, editObj;
+		var mockData = [
+				{
+					title: "title1",
+					description: "list item 1",
+					id: 1
+				},
+				{
+					title: "title2",
+					description: "list item 2",
+					id: 2
+				},
+				{
+					title: "title3",
+					description: "list item 3",
+					id: 3
+				}
+			];
+			
+		var colors = [
+			{
+				value: "white",
+				display: "White"
+			},
+			{
+				value: "lightgreen",
+				display: "Light green"
+			},
+			{
+				value: "lightblue",
+				display: "Light blue"
+			},
+			{
+				value: "red",
+				display: "Red"
+			},
+			{
+				value: "pink",
+				display: "Pink"
+			},
+			
+		];
+	
+		var init = function(){			
+			userInput = document.getElementById("userInput");
+			list = document.getElementById("list");
+			
+			title = document.getElementById("title");
+			description = document.getElementById("description");
+			select = document.getElementById("select");
+			userInputTitle = document.getElementById("userInputTitle");
+			
+			// creating list with mockData
+			for(var i = 0; i < mockData.length; i++){
+				list.appendChild(createListItem(mockData[i].title, mockData[i].description, mockData[i], mockData[i].select));
+			}
+			
+			// setting colors list from data
+			var option;
+			for(var j=0; j < colors.length; j++){
+				option = document.createElement("option");
+				option.text = colors[j].display;
+				option.value = colors[j].value;
+				select.add(option);
+			}
+			
+		};
+		
+		var handleAddNote = function(evt){
+			console.log("handle add notes");
+			edit = false;
+			// setting title
+			userInputTitle.textContent = "Add Note";
+			
+			// clearing form
+			title.value = "";
+			description.value = "";
+			select.selectedIndex = 0;
+			
+			// change visibility
+			userInput.style.display = "block";
+			list.style.display = "none";
+		};
+		
+		var handleCancel = function(evt){
+			console.log("handle cancel", evt);
+			userInput.style.display = "none";
+			list.style.display = "block";
+		};
+		
+		var handleSave = function(evt){
+			console.log("handle save", evt);
+			
+			// saving data
+			var obj = {};
+			obj.title = title.value;
+			obj.description = description.value;
+			obj.select = select.value;
+			
+			if(edit){
+				var index;
+				editObj.title = obj.title;
+				editObj.description = obj.description;
+				editObj.select = obj.select;
+				
+				mockData.forEach(function(val, idx){
+					if(val === editObj){
+						index = idx;
+					}
+				});
+				
+				list.replaceChild(createListItem(editObj.title, editObj.description, editObj, editObj.select), list.childNodes[index + 3]);
+			}else{
+				mockData.push(obj);
+			
+				//adding list item
+				list.appendChild(createListItem(obj.title, obj.description, obj, obj.select));
+			}
+			
+			
+			// closing view
+			userInput.style.display = "none";
+			list.style.display = "block";
+		};
+		
+		var handleEditNote = function(obj, evt){
+			console.log("handle edit notes", obj);
+			edit = true;
+			editObj = obj;
+			
+			// setting title
+			userInputTitle.textContent = "Edit Note";
+			
+			// assigning value to form
+			title.value = obj.title;
+			description.value = obj.description;
+			select.value = obj.select || "white";
+			
+			//opening edit view
+			userInput.style.display = "block";
+			list.style.display = "none";
+		};
+		
+		var handleDeleteNote = function(obj, evt){
+			console.log("handle delete notes", obj);
+			
+			var index;
+			
+			// modify array
+			mockData = mockData.filter(function(val, idx){
+				if(val === obj){
+					index = idx;
+				}
+				return val !== obj;
+			});
+			
+			// modify DOM
+			list.removeChild(list.childNodes[index + 3]);
+		};
+		
+		var createListItem = function(title, description, obj, color){
+			var div = document.createElement("div");
+			div.className = "listItem";
+			div.style.backgroundColor = color || "white";
+			
+			var h4 = document.createElement("h4");
+			//var h4Text = document.createTextNode(title);
+			h4.textContent = title;
+			
+			var p = document.createElement("p");
+			//var pText = document.createTextNode(description);
+			p.textContent = description;
+			
+			var editBtn = document.createElement("button");
+			editBtn.textContent = "Edit";
+			editBtn.addEventListener("click", handleEditNote.bind(this, obj));
+			
+			var deleteBtn = document.createElement("button");
+			deleteBtn.textContent = "Delete";
+			deleteBtn.addEventListener("click", handleDeleteNote.bind(this, obj));
+			
+			div.appendChild(h4);
+			div.appendChild(p);
+			div.appendChild(editBtn);
+			div.appendChild(document.createTextNode(" "));
+			div.appendChild(deleteBtn);
+			
+			return div;
+		};
+		
+	</script>
+	<body onload = "init()">
+		<!-- Enter your HTML code here -->
+<button onclick="handleAddNote()">Add Note</button>
+
+<div id="userInput">
+	<h2 id="userInputTitle">Add Note / Edit notes</h2>
+	Title: <br>
+	<input id="title"> <br>
+	Description: <br>
+	<textarea id="description">
+	</textarea><br>
+	Color: <br>
+	<select id="select">
+		
+	</select><br><br>
+	<button class="btn btn-success" onclick="handleSave()">Save</button>
+	<button class="btn btn-warning" onclick="handleCancel()">Cancel</button>
+</div>
+
+<div id="list">
+    <h2>List</h2>
+</div>
+	</body>
+</html>
